@@ -1,4 +1,4 @@
-import React, {useContext, useState} from 'react';
+import React, {useContext, useState,Component} from 'react';
 import { Text, View, TouchableOpacity, StyleSheet, FlatList, Modal } from 'react-native';
 import { AuthContext } from '../navigation/AuthProvider';
 import FormButton from '../components/FormButtons';
@@ -7,17 +7,22 @@ import tempData from '../utils/tempData';
 import ToDoList from '../components/ToDoList';
 import AddListModal from '../components/AddListModal';
 import {windowHeight, WindowWidth} from '../utils/Dimensions';
+import SignoutButton from '../components/SignoutButton';
 
 export default class HomeScreen extends Component {
+
+  static contextType = AuthContext;
   render() {
+    const {user} =this.context;
+    console.log(user.uid);
     return (
       <View style={styles.container}>
-      <Modal animationType="slide" visible={modalVisible} onRequestClose= {() => {setModalVisible(false);}} >
+      <Modal animationType="slide" visible={false} onRequestClose= {() => {setModalVisible(false);}} >
           <AddListModal closeModal={() => {setModalVisible(false)}} />
       </Modal>
       <View style={{flexDirection: "row"}}>
         <Text style={styles.title}>Todo  
-          <Text style={styles.textTitle}> List</Text>
+          <Text style={styles.textTitle}> List </Text>
         </Text>
         
       </View>
@@ -31,7 +36,7 @@ export default class HomeScreen extends Component {
 
       <View style={{height: windowHeight/2.5, paddingLeft: 32}}> 
         <FlatList 
-            data = {lists}
+            data = {tempData}
             keyExtractor={item => item.name}
             horizontal={true}
             showsHorizontalScrollIndicator={false}
@@ -41,9 +46,8 @@ export default class HomeScreen extends Component {
       </View>
 
       <View style={styles.buttonContainer}>
-        <FormButton
+        <SignoutButton
           buttonTitle="Sign out"
-          onPress={() => logout()}
         />
       </View>
     
