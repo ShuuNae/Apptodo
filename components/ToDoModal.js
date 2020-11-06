@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Text, StyleSheet, View, SafeAreaView, TouchableOpacity, FlatList, KeyboardAvoidingView, TextInput } from 'react-native'
+import { Text, StyleSheet, View, SafeAreaView, TouchableOpacity, FlatList, KeyboardAvoidingView, TextInput, Keyboard } from 'react-native'
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import FontAwesome  from 'react-native-vector-icons/FontAwesome';
 
@@ -16,14 +16,23 @@ export default class ToDoModal extends Component {
         this.props.updateList(list);
     };
 
+    addToDo = () => {
+        let list = this.props.list;
+        list.todos.push({title: this.state.newToDo, completed: false});
+
+        this.props.updateList(list);
+        this.setState({newToDo: ""});
+        
+        Keyboard.dismiss();
+    };
+
     renderToDo = (todo, index) => {
         return (
             <View style={styles.ToDoContainer}> 
-                <TouchableOpacity onPress={() => this.toggleToDoCompleted(index)}>
+                <TouchableOpacity onPress={() => this.toggleToDoCompleted(index)} style={{flexDirection: "row"}}>
                     <FontAwesome name={todo.completed ? "check-square-o" : "square-o"} size={24} color={"#5b5b5b"} style={{width: 32}} />
-                </TouchableOpacity>
-                
-                <Text 
+
+                    <Text 
                     style={[
                         styles.todo, 
                         { 
@@ -34,6 +43,9 @@ export default class ToDoModal extends Component {
                 >
                     {todo.title}
                 </Text>
+                </TouchableOpacity>
+                
+                
             </View>
         );
     };
@@ -74,8 +86,16 @@ export default class ToDoModal extends Component {
                 </View>
 
                 <View style={[styles.section, styles.footer]}  >
-                    <TextInput style={[styles.input, {borderColor: list.color}]} />
-                    <TouchableOpacity style={[styles.addToDo, {backgroundColor: list.color}]} >
+                    <TextInput 
+                        style={[styles.input, {borderColor: list.color}]}
+                        onChangeText={text => this.setState({newToDo: text})}
+                        value={this.state.newToDo}
+                    />
+                    <TouchableOpacity 
+                        style={[styles.addToDo, 
+                        {backgroundColor: list.color}]}
+                        onPress={() => this.addToDo()}
+                    >
                         <AntDesign name="plus" size={16} color={"#ffff"} />
                     </TouchableOpacity>
                 </View>

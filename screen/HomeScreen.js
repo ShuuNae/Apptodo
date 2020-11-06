@@ -48,6 +48,9 @@ export default class HomeScreen extends Component {
       <Modal animationType="slide" visible={this.state.addTodoVisible} onRequestClose= {() => this.toggleAddTodoModal()} >
           <AddListModal closeModal={() => this.toggleAddTodoModal()} addList={this.addList} />
       </Modal>
+      <View>
+        <Text>{user.uid}</Text>
+      </View>
       <View style={{flexDirection: "row"}}>
         <Text style={styles.title}>Todo  
           <Text style={styles.textTitle}> List </Text>
@@ -69,6 +72,7 @@ export default class HomeScreen extends Component {
             horizontal={true}
             showsHorizontalScrollIndicator={false}
             renderItem={({ item }) => this.renderList(item)}
+            keyboardShouldPersistTaps="always"
              
         />
       </View>
