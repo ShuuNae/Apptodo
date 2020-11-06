@@ -6,15 +6,20 @@ import FontAwesome  from 'react-native-vector-icons/FontAwesome';
 export default class ToDoModal extends Component {
 
     state = {
-        name: this.props.list.name,
-        color: this.props.list.color,
-        todos: this.props.list.todos
+        newToDo: ""
     };
 
-    renderToDo = todo => {
+    toggleToDoCompleted = index => {
+        let list = this.props.list;
+        list.todos[index].completed = !list.todos[index].completed;
+
+        this.props.updateList(list);
+    };
+
+    renderToDo = (todo, index) => {
         return (
             <View style={styles.ToDoContainer}> 
-                <TouchableOpacity>
+                <TouchableOpacity onPress={() => this.toggleToDoCompleted(index)}>
                     <FontAwesome name={todo.completed ? "check-square-o" : "square-o"} size={24} color={"#5b5b5b"} style={{width: 32}} />
                 </TouchableOpacity>
                 
@@ -23,7 +28,7 @@ export default class ToDoModal extends Component {
                         styles.todo, 
                         { 
                             textDecorationLine: todo.completed ? "line-through" :"none", 
-                            color: todo.completed ? "#b8b8b8" : this.state.color
+                            color: todo.completed ? "#b8b8b8" : this.props.list.color
                         }
                     ]}
                 >
@@ -34,10 +39,13 @@ export default class ToDoModal extends Component {
     };
 
     render() {
-        const taskCount = this.state.todos.length;
-        const completedCount = this.state.todos.filter(todo => todo.completed).length;
+
+        const list = this.props.list;
+        const taskCount = list.todos.length;
+        const completedCount = list.todos.filter(todo => todo.completed).length;
 
         return (
+        <KeyboardAvoidingView style={{flex: 1}} >
             <SafeAreaView style={styles.container}> 
                 <TouchableOpacity 
                 style={{position: 'absolute', top: 32, right :32 , zIndex: 10}} 
@@ -46,9 +54,9 @@ export default class ToDoModal extends Component {
                     <AntDesign name="close" size={24} color={"#000000"} />
                 </TouchableOpacity>
 
-                <View style={[styles.section, styles.header, {borderBottomColor: this.state.color}]}>
+                <View style={[styles.section, styles.header, {borderBottomColor: list.color}]}>
                     <View>
-                        <Text style={styles.title}>{this.state.name}</Text>
+                        <Text style={styles.title}>{list.name}</Text>
                         <Text style={styles.taskCount}>
                             {completedCount} of {taskCount} tasks completed
                         </Text>
@@ -57,22 +65,23 @@ export default class ToDoModal extends Component {
 
                 <View style={[styles.section, {flex: 3}]}>
                     <FlatList 
-                        data={this.state.todos} 
-                        renderItem={({item}) => this.renderToDo(item)} 
+                        data={list.todos} 
+                        renderItem={({item, index}) => this.renderToDo(item, index)} 
                         keyExtractor={item => item.title}  
                         contentContainerStyle={{paddingHorizontal: 32, paddingVertical: 64}}
                         showsVerticalScrollIndicator={false}                   
                         />
                 </View>
 
-                <KeyboardAvoidingView style={[styles.section, styles.footer]} behavior="padding" >
-                    <TextInput style={[styles.input, {borderColor: this.state.color}]} />
-                    <TouchableOpacity style={[styles.addToDo, {backgroundColor: this.state.color}]} >
+                <View style={[styles.section, styles.footer]}  >
+                    <TextInput style={[styles.input, {borderColor: list.color}]} />
+                    <TouchableOpacity style={[styles.addToDo, {backgroundColor: list.color}]} >
                         <AntDesign name="plus" size={16} color={"#ffff"} />
                     </TouchableOpacity>
-                </KeyboardAvoidingView>
+                </View>
 
             </SafeAreaView>
+        </KeyboardAvoidingView>
         );
     }
 }
@@ -117,7 +126,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 8,
     },
     addToDo: {
-        borderRadius: 12,
+        borderRadius: 4,
         padding: 16,
         alignItems: "center",
         justifyContent:"center",
