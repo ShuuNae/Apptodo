@@ -1,4 +1,4 @@
-import React, {useContext, useState,Component} from 'react';
+import React, {Component} from 'react';
 import { Text, View, TouchableOpacity, StyleSheet, FlatList, Modal } from 'react-native';
 import { AuthContext } from '../navigation/AuthProvider';
 import FormButton from '../components/FormButtons';
@@ -12,13 +12,41 @@ import SignoutButton from '../components/SignoutButton';
 export default class HomeScreen extends Component {
 
   static contextType = AuthContext;
+
+  state = {
+    addTodoVisible: false,
+    lists: tempData,
+  };
+
+  toggleAddTodoModal() {
+    this.setState({ addTodoVisible: !this.state.addTodoVisible });
+  };
+
+  renderList = list => {
+    return (
+      <ToDoList list={list} updateList={this.updateList} />
+    );
+  };
+
+  addList = lists => {
+    this.setState({ lists: [...this.state.lists, {...lists, id: this.state.lists.length+1, todos: [] }] });
+  };
+
+  updateList = list => {
+    this.setState({
+      lists: this.state.lists.map(item => {
+        return item.id === list.id ? list : item;
+      })
+    });
+  };
+
   render() {
     const {user} =this.context;
-    console.log(user.uid);
+    // console.log(user.uid);
     return (
       <View style={styles.container}>
-      <Modal animationType="slide" visible={false} onRequestClose= {() => {setModalVisible(false);}} >
-          <AddListModal closeModal={() => {setModalVisible(false)}} />
+      <Modal animationType="slide" visible={this.state.addTodoVisible} onRequestClose= {() => this.toggleAddTodoModal()} >
+          <AddListModal closeModal={() => this.toggleAddTodoModal()} addList={this.addList} />
       </Modal>
       <View style={{flexDirection: "row"}}>
         <Text style={styles.title}>Todo  
@@ -27,7 +55,7 @@ export default class HomeScreen extends Component {
         
       </View>
       <View style={{marginVertical: 36}}>
-        <TouchableOpacity style={styles.addList} onPress={() => {setModalVisible(!modalVisible);}} >
+        <TouchableOpacity style={styles.addList} onPress={() => this.toggleAddTodoModal()} >
           <AntDesign name="plus" size={16} color={"#af2727"} />
         </TouchableOpacity>
 
@@ -36,11 +64,11 @@ export default class HomeScreen extends Component {
 
       <View style={{height: windowHeight/2.5, paddingLeft: 32}}> 
         <FlatList 
-            data = {tempData}
+            data = {this.state.lists}
             keyExtractor={item => item.name}
             horizontal={true}
             showsHorizontalScrollIndicator={false}
-            renderItem={({ item }) => <ToDoList list={item} />}
+            renderItem={({ item }) => this.renderList(item)}
              
         />
       </View>
