@@ -28,7 +28,7 @@ export default class HomeScreen extends Component {
 
   componentDidMount() {
     const {user} = this.context;
-    console.log('user uid: ' + user.uid);
+    // console.log('user uid: ' + user.uid);
     this.subscriber = firestore()
       .collection('users')
       .doc(user.uid)
@@ -38,7 +38,7 @@ export default class HomeScreen extends Component {
         snapshot.forEach((doc) => {
           lists.push({id: doc.id, ...doc.data()});
         });
-        // this.setState({lists});
+         this.setState({lists});
         // console.log(lists);
       });
   }
