@@ -28,7 +28,7 @@ export default class HomeScreen extends Component {
 
   componentDidMount() {
     const {user} = this.context;
-    console.log('user uid: ' + user.uid);
+    // console.log('user uid: ' + user.uid);
     this.subscriber = firestore()
       .collection('users')
       .doc(user.uid)
