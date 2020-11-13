@@ -8,7 +8,6 @@ import {
   Modal,
 } from 'react-native';
 import {AuthContext} from '../navigation/AuthProvider';
-import FormButton from '../components/FormButtons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import tempData from '../utils/tempData';
 import ToDoList from '../components/ToDoList';
@@ -23,12 +22,10 @@ export default class HomeScreen extends Component {
   state = {
     addTodoVisible: false,
     lists: [],
-    // lists2: [],
   };
 
   componentDidMount() {
     const {user} = this.context;
-    // console.log('user uid: ' + user.uid);
     this.subscriber = firestore()
       .collection('users')
       .doc(user.uid)
@@ -38,9 +35,12 @@ export default class HomeScreen extends Component {
         snapshot.forEach((doc) => {
           lists.push({id: doc.id, ...doc.data()});
         });
-         this.setState({lists});
+        this.setState({lists});
         // console.log(lists);
       });
+  }
+  componentWillUnmount() {
+    this.subscriber();
   }
 
   toggleAddTodoModal() {
@@ -51,26 +51,27 @@ export default class HomeScreen extends Component {
     return <ToDoList list={list} updateList={this.updateList} />;
   };
 
-  addList = (lists) => {
-    this.setState({
-      lists: [
-        ...this.state.lists,
-        {...lists, id: this.state.lists.length + 1, todos: []},
-      ],
+  addList = (list) => {
+    const {user} = this.context;
+    firestore().collection('users').doc(user.uid).collection('lists').add({
+      name: list.name,
+      color: list.color,
+      todos: [],
     });
   };
 
   updateList = (list) => {
-    this.setState({
-      lists: this.state.lists.map((item) => {
-        return item.id === list.id ? list : item;
-      }),
-    });
+    const {user} = this.context;
+    firestore()
+      .collection('users')
+      .doc(user.uid)
+      .collection('lists')
+      .doc(list.id)
+      .update(list);
   };
 
   render() {
     const {user} = this.context;
-    // console.log(user.uid);
     return (
       <View style={styles.container}>
         <Modal
@@ -82,9 +83,6 @@ export default class HomeScreen extends Component {
             addList={this.addList}
           />
         </Modal>
-        <View>
-          <Text>{user.uid}</Text>
-        </View>
         <View style={{flexDirection: 'row'}}>
           <Text style={styles.title}>
             Todo

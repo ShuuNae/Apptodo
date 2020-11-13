@@ -8,7 +8,6 @@ import {
   TextInput,
 } from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
-import tempData from '../utils/tempData';
 
 export default class AddListModal extends Component {
   backgroundColors = [
@@ -51,7 +50,7 @@ export default class AddListModal extends Component {
 
   render() {
     return (
-      <KeyboardAvoidingView style={styles.container} behavior="padding">
+      <KeyboardAvoidingView style={styles.container}>
         <TouchableOpacity
           style={{position: 'absolute', top: 32, right: 32}}
           onPress={this.props.closeModal}>

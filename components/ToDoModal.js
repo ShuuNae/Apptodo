@@ -9,9 +9,11 @@ import {
   KeyboardAvoidingView,
   TextInput,
   Keyboard,
+  Animated,
 } from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import Swipeable from 'react-native-gesture-handler/Swipeable';
 
 export default class ToDoModal extends Component {
   state = {
@@ -34,19 +36,21 @@ export default class ToDoModal extends Component {
 
     Keyboard.dismiss();
   };
+  // style={{flexDirection: 'row'}}
 
   renderToDo = (todo, index) => {
     return (
-      <View style={styles.ToDoContainer}>
-        <TouchableOpacity
-          onPress={() => this.toggleToDoCompleted(index)}
-          style={{flexDirection: 'row'}}>
-          <FontAwesome
-            name={todo.completed ? 'check-square-o' : 'square-o'}
-            size={24}
-            color={'#5b5b5b'}
-            style={{width: 32}}
-          />
+      <Swipeable
+        renderRightActions={(_, dragX) => this.rightActions(dragX, index)}>
+        <View style={styles.ToDoContainer}>
+          <TouchableOpacity onPress={() => this.toggleToDoCompleted(index)}>
+            <FontAwesome
+              name={todo.completed ? 'check-square-o' : 'square-o'}
+              size={24}
+              color={'#5b5b5b'}
+              style={{width: 32}}
+            />
+          </TouchableOpacity>
 
           <Text
             style={[
@@ -58,8 +62,18 @@ export default class ToDoModal extends Component {
             ]}>
             {todo.title}
           </Text>
-        </TouchableOpacity>
-      </View>
+        </View>
+      </Swipeable>
+    );
+  };
+
+  rightActions = (dragX, index) => {
+    return (
+      <TouchableOpacity>
+        <Animated.View>
+          <Animated.Text>Delete</Animated.Text>
+        </Animated.View>
+      </TouchableOpacity>
     );
   };
 
@@ -103,7 +117,6 @@ export default class ToDoModal extends Component {
               showsVerticalScrollIndicator={false}
             />
           </View>
-
           <View style={[styles.section, styles.footer]}>
             <TextInput
               style={[styles.input, {borderColor: list.color}]}

@@ -6,7 +6,6 @@ import LoginScreen from '../screen/LoginScreen';
 import SignupScreen from '../screen/SignupScreen';
 
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import LogoutScreen from '../screen/LogoutScreen';
 
 const Stack = createStackNavigator();
 
@@ -42,11 +41,6 @@ const AuthStack = () => {
             </View>
           ),
         })}
-      />
-      <Stack.Screen
-        name="Logout"
-        component={LogoutScreen}
-        options={{header: () => null}}
       />
     </Stack.Navigator>
   );
