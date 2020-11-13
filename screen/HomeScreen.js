@@ -38,7 +38,7 @@ export default class HomeScreen extends Component {
         snapshot.forEach((doc) => {
           lists.push({id: doc.id, ...doc.data()});
         });
-        // this.setState({lists});
+         this.setState({lists});
         // console.log(lists);
       });
   }
