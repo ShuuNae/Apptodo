@@ -13,11 +13,11 @@ import {
 } from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import Swipeable from 'react-native-gesture-handler/Swipeable';
 
 export default class ToDoModal extends Component {
   state = {
     newToDo: '',
+    todoEditable: false,
   };
 
   toggleToDoCompleted = (index) => {
@@ -27,22 +27,48 @@ export default class ToDoModal extends Component {
     this.props.updateList(list);
   };
 
+  toggleTodoEditable() {
+    this.setState({todoEditable: !this.state.todoEditable});
+  }
+
   addToDo = () => {
     let list = this.props.list;
-    list.todos.push({title: this.state.newToDo, completed: false});
 
-    this.props.updateList(list);
+    if (!list.todos.some((todo) => todo.title === this.state.newToDo)) {
+      list.todos.push({title: this.state.newToDo, completed: false});
+
+      this.props.updateList(list);
+    } else {
+      alert(this.state.newToDo + ' is already exists!');
+    }
+
     this.setState({newToDo: ''});
 
     Keyboard.dismiss();
   };
-  // style={{flexDirection: 'row'}}
+
+  deleteTodo = (index) => {
+    let list = this.props.list;
+    list.todos.splice(index, 1);
+
+
+    this.toggleTodoEditable();
+    this.props.updateList(list);
+  };
+
+  editTodo = (index, text) => {
+    let list = this.props.list;
+    list.todos[index].title = text;
+
+    this.props.updateList(list);
+  };
+
+
 
   renderToDo = (todo, index) => {
     return (
-      <Swipeable
-        renderRightActions={(_, dragX) => this.rightActions(dragX, index)}>
-        <View style={styles.ToDoContainer}>
+      <View style={styles.ToDoContainer}>
+        <View style={{flexDirection: 'row'}}>
           <TouchableOpacity onPress={() => this.toggleToDoCompleted(index)}>
             <FontAwesome
               name={todo.completed ? 'check-square-o' : 'square-o'}
@@ -53,6 +79,8 @@ export default class ToDoModal extends Component {
           </TouchableOpacity>
 
           <Text
+            // editable={this.state.todoEditable}
+            // onChangeText={(text) => this.editTodo(index, text)}
             style={[
               styles.todo,
               {
@@ -63,17 +91,28 @@ export default class ToDoModal extends Component {
             {todo.title}
           </Text>
         </View>
-      </Swipeable>
-    );
-  };
+        <View style={{flexDirection: 'row', justifyContent: 'flex-start'}}>
+          <TouchableOpacity >
+            <FontAwesome
+              name={'pencil'}
+              size={24}
+              style={{width: 32}}
+              color={this.props.list.color}
+            />
+          </TouchableOpacity>
 
-  rightActions = (dragX, index) => {
-    return (
-      <TouchableOpacity>
-        <Animated.View>
-          <Animated.Text>Delete</Animated.Text>
-        </Animated.View>
-      </TouchableOpacity>
+          <TouchableOpacity
+            style={{marginLeft: 10}}
+            onPress={() => this.deleteTodo(index)}>
+            <FontAwesome
+              name={'trash'}
+              size={24}
+              style={{width: 32}}
+              color={this.props.list.color}
+            />
+          </TouchableOpacity>
+        </View>
+      </View>
     );
   };
 
@@ -109,7 +148,7 @@ export default class ToDoModal extends Component {
             <FlatList
               data={list.todos}
               renderItem={({item, index}) => this.renderToDo(item, index)}
-              keyExtractor={(_, index) => index.toString()}
+              keyExtractor={(item) => item.title}
               contentContainerStyle={{
                 paddingHorizontal: 32,
                 paddingVertical: 64,
@@ -184,6 +223,7 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
   },
   todos: {
     color: '#000000',

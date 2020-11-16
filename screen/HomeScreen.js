@@ -9,7 +9,6 @@ import {
 } from 'react-native';
 import {AuthContext} from '../navigation/AuthProvider';
 import AntDesign from 'react-native-vector-icons/AntDesign';
-import tempData from '../utils/tempData';
 import ToDoList from '../components/ToDoList';
 import AddListModal from '../components/AddListModal';
 import {windowHeight, WindowWidth} from '../utils/Dimensions';
