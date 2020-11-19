@@ -64,6 +64,7 @@ export default class AddListModal extends Component {
             style={styles.input}
             placeholder="List Name"
             onChangeText={(text) => this.setState({name: text})}
+            maxLength={35}
           />
 
           <View

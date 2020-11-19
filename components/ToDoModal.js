@@ -10,19 +10,24 @@ import {
   TextInput,
   Keyboard,
   Animated,
+  Modal,
 } from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import FormButton from '../components/FormButtons';
 
 export default class ToDoModal extends Component {
   state = {
     newToDo: '',
     todoEditable: false,
+    ToDoEdit: '',
+    modalIndex: '',
   };
 
   toggleToDoCompleted = (index) => {
     let list = this.props.list;
     list.todos[index].completed = !list.todos[index].completed;
+    console.log(index);
 
     this.props.updateList(list);
   };
@@ -51,8 +56,6 @@ export default class ToDoModal extends Component {
     let list = this.props.list;
     list.todos.splice(index, 1);
 
-
-    this.toggleTodoEditable();
     this.props.updateList(list);
   };
 
@@ -61,13 +64,43 @@ export default class ToDoModal extends Component {
     list.todos[index].title = text;
 
     this.props.updateList(list);
+    this.setState({ToDoEdit: ''});
+    this.setState({modalIndex: ''});
+    Keyboard.dismiss();
+    this.toggleTodoEditable();
   };
-
-
-
   renderToDo = (todo, index) => {
     return (
       <View style={styles.ToDoContainer}>
+        <Modal transparent={true} visible={this.state.todoEditable}>
+          <View style={{backgroundColor: '#000000aa', flex: 2}}>
+            <KeyboardAvoidingView style={styles.editTodoModal}>
+              <Text style={{fontSize: 25, alignSelf: 'center'}}>
+                Edit your todo
+              </Text>
+              <View>
+                <TextInput
+                  style={styles.inputEdit}
+                  onChangeText={(text) => this.setState({ToDoEdit: text})}
+                  value={this.state.ToDoEdit}
+                />
+              </View>
+
+              <View style={{flexDirection: 'row'}}>
+                <FormButton
+                  buttonTitle="Save"
+                  onPress={() =>
+                    this.editTodo(this.state.modalIndex, this.state.ToDoEdit)
+                  }
+                />
+                <FormButton
+                  buttonTitle="Cancel"
+                  onPress={() => this.toggleTodoEditable()}
+                />
+              </View>
+            </KeyboardAvoidingView>
+          </View>
+        </Modal>
         <View style={{flexDirection: 'row'}}>
           <TouchableOpacity onPress={() => this.toggleToDoCompleted(index)}>
             <FontAwesome
@@ -92,7 +125,14 @@ export default class ToDoModal extends Component {
           </Text>
         </View>
         <View style={{flexDirection: 'row', justifyContent: 'flex-start'}}>
-          <TouchableOpacity >
+          <TouchableOpacity
+            onPress={() => {
+              this.setState({
+                ToDoEdit: this.props.list.todos[index].title,
+                modalIndex: index,
+              });
+              this.toggleTodoEditable();
+            }}>
             <FontAwesome
               name={'pencil'}
               size={24}
@@ -154,6 +194,7 @@ export default class ToDoModal extends Component {
                 paddingVertical: 64,
               }}
               showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="always"
             />
           </View>
           <View style={[styles.section, styles.footer]}>
@@ -229,5 +270,22 @@ const styles = StyleSheet.create({
     color: '#000000',
     fontSize: 16,
     fontWeight: '600',
+  },
+  editTodoModal: {
+    backgroundColor: '#ffffff',
+    margin: 50,
+    marginBottom: 200,
+    padding: 40,
+    borderRadius: 10,
+    flex: 1,
+    flexDirection: 'column',
+  },
+  inputEdit: {
+    fontSize: 18,
+    height: 48,
+    borderWidth: 2,
+    borderRadius: 6,
+    marginRight: 8,
+    paddingHorizontal: 8,
   },
 });
