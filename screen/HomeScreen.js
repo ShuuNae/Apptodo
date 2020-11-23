@@ -12,7 +12,6 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import ToDoList from '../components/ToDoList';
 import AddListModal from '../components/AddListModal';
 import {windowHeight, WindowWidth} from '../utils/Dimensions';
-import SignoutButton from '../components/SignoutButton';
 import firestore from '@react-native-firebase/firestore';
 
 export default class HomeScreen extends Component {
@@ -47,7 +46,13 @@ export default class HomeScreen extends Component {
   }
 
   renderList = (list) => {
-    return <ToDoList list={list} updateList={this.updateList} />;
+    return (
+      <ToDoList
+        list={list}
+        updateList={this.updateList}
+        deleteList={this.deleteList}
+      />
+    );
   };
 
   addList = (list) => {
@@ -67,6 +72,15 @@ export default class HomeScreen extends Component {
       .collection('lists')
       .doc(list.id)
       .update(list);
+  };
+  deleteList = (list) => {
+    const {user} = this.context;
+    firestore()
+      .collection('users')
+      .doc(user.uid)
+      .collection('lists')
+      .doc(list.id)
+      .delete();
   };
 
   render() {
@@ -98,7 +112,7 @@ export default class HomeScreen extends Component {
           <Text style={styles.addListText}>Add List</Text>
         </View>
 
-        <View style={{height: windowHeight / 2.5, paddingLeft: 32}}>
+        <View style={{height: windowHeight / 2.5, paddingLeft: 10}}>
           <FlatList
             data={this.state.lists}
             keyExtractor={(item) => item.id.toString()}
@@ -107,10 +121,6 @@ export default class HomeScreen extends Component {
             renderItem={({item}) => this.renderList(item)}
             keyboardShouldPersistTaps="always"
           />
-        </View>
-
-        <View style={styles.buttonContainer}>
-          <SignoutButton buttonTitle="Sign out" />
         </View>
       </View>
     );

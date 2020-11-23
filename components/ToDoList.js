@@ -27,6 +27,7 @@ export default class ToDoList extends Component {
             list={list}
             closeModal={() => this.toggleListVisible()}
             updateList={this.props.updateList}
+            deleteList={this.props.deleteList}
           />
         </Modal>
         <TouchableOpacity

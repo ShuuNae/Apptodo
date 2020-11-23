@@ -9,12 +9,13 @@ import {
   KeyboardAvoidingView,
   TextInput,
   Keyboard,
-  Animated,
   Modal,
+  Alert,
 } from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import FormButton from '../components/FormButtons';
+import Dimensions, {windowWidth, windowHeight} from '../utils/Dimensions';
 
 export default class ToDoModal extends Component {
   state = {
@@ -27,7 +28,6 @@ export default class ToDoModal extends Component {
   toggleToDoCompleted = (index) => {
     let list = this.props.list;
     list.todos[index].completed = !list.todos[index].completed;
-    console.log(index);
 
     this.props.updateList(list);
   };
@@ -40,9 +40,13 @@ export default class ToDoModal extends Component {
     let list = this.props.list;
 
     if (!list.todos.some((todo) => todo.title === this.state.newToDo)) {
-      list.todos.push({title: this.state.newToDo, completed: false});
+      if (!this.state.newToDo.trim()) {
+        alert('Please enter something!');
+      } else {
+        list.todos.push({title: this.state.newToDo, completed: false});
 
-      this.props.updateList(list);
+        this.props.updateList(list);
+      }
     } else {
       alert(this.state.newToDo + ' is already exists!');
     }
@@ -61,46 +65,42 @@ export default class ToDoModal extends Component {
 
   editTodo = (index, text) => {
     let list = this.props.list;
-    list.todos[index].title = text;
+    if (!list.todos.some((todo) => todo.title === text)) {
+      list.todos[index].title = text;
 
-    this.props.updateList(list);
+      this.props.updateList(list);
+    } else {
+      alert(text + ' is already exists!');
+    }
     this.setState({ToDoEdit: ''});
     this.setState({modalIndex: ''});
     Keyboard.dismiss();
     this.toggleTodoEditable();
   };
+  deleteList = () => {
+    let list = this.props.list;
+    this.props.deleteList(list);
+  };
+
+  alertDelete = () => {
+    Alert.alert(
+      'Delete',
+      'Do you want to delete this list?',
+      [
+        {text: 'Yes', onPress: () => this.deleteList()},
+        {
+          text: 'No',
+          style: 'cancel',
+        },
+      ],
+
+      {cancelable: false},
+    );
+  };
+
   renderToDo = (todo, index) => {
     return (
       <View style={styles.ToDoContainer}>
-        <Modal transparent={true} visible={this.state.todoEditable}>
-          <View style={{backgroundColor: '#000000aa', flex: 2}}>
-            <KeyboardAvoidingView style={styles.editTodoModal}>
-              <Text style={{fontSize: 25, alignSelf: 'center'}}>
-                Edit your todo
-              </Text>
-              <View>
-                <TextInput
-                  style={styles.inputEdit}
-                  onChangeText={(text) => this.setState({ToDoEdit: text})}
-                  value={this.state.ToDoEdit}
-                />
-              </View>
-
-              <View style={{flexDirection: 'row'}}>
-                <FormButton
-                  buttonTitle="Save"
-                  onPress={() =>
-                    this.editTodo(this.state.modalIndex, this.state.ToDoEdit)
-                  }
-                />
-                <FormButton
-                  buttonTitle="Cancel"
-                  onPress={() => this.toggleTodoEditable()}
-                />
-              </View>
-            </KeyboardAvoidingView>
-          </View>
-        </Modal>
         <View style={{flexDirection: 'row'}}>
           <TouchableOpacity onPress={() => this.toggleToDoCompleted(index)}>
             <FontAwesome
@@ -112,10 +112,8 @@ export default class ToDoModal extends Component {
           </TouchableOpacity>
 
           <Text
-            // editable={this.state.todoEditable}
-            // onChangeText={(text) => this.editTodo(index, text)}
             style={[
-              styles.todo,
+              styles.todos,
               {
                 textDecorationLine: todo.completed ? 'line-through' : 'none',
                 color: todo.completed ? '#b8b8b8' : this.props.list.color,
@@ -160,14 +158,69 @@ export default class ToDoModal extends Component {
     const list = this.props.list;
     const taskCount = list.todos.length;
     const completedCount = list.todos.filter((todo) => todo.completed).length;
+    // console.log('ID list: ' + list.id);
 
     return (
       <KeyboardAvoidingView style={{flex: 1}}>
+        <Modal
+          visible={this.state.todoEditable}
+          transparent={true}
+          position="center">
+          <View
+            style={{
+              backgroundColor: '#000000aa',
+              flex: 1,
+              justifyContent: 'center',
+            }}>
+            <KeyboardAvoidingView style={styles.editTodoModal}>
+              <Text style={{fontSize: 25, alignSelf: 'center', marginBottom: 5}}>
+                Edit your todo
+              </Text>
+              <View>
+                <TextInput
+                  style={styles.inputEdit}
+                  onChangeText={(text) => this.setState({ToDoEdit: text})}
+                  value={this.state.ToDoEdit}
+                />
+              </View>
+
+              <View
+                style={{
+                  justifyContent: 'space-between',
+                  flexDirection: 'row',
+                }}>
+                <TouchableOpacity
+                  style={styles.editModalButton}
+                  onPress={() =>
+                    this.editTodo(this.state.modalIndex, this.state.ToDoEdit)
+                  }>
+                  <Text style={styles.buttonText}>Save</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                style={styles.editModalButton}
+                  onPress={() => this.toggleTodoEditable()}
+                  >
+                  <Text style={styles.buttonText}>Cancel</Text>
+                  </TouchableOpacity>
+              </View>
+            </KeyboardAvoidingView>
+          </View>
+        </Modal>
         <SafeAreaView style={styles.container}>
           <TouchableOpacity
             style={{position: 'absolute', top: 32, right: 32, zIndex: 10}}
             onPress={this.props.closeModal}>
             <AntDesign name="close" size={24} color={'#000000'} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{position: 'absolute', top: 32, right: 52, zIndex: 10}}
+            onPress={() => this.alertDelete()}>
+            <FontAwesome
+              name={'trash'}
+              size={24}
+              style={{width: 32}}
+              color={'#000000'}
+            />
           </TouchableOpacity>
 
           <View
@@ -267,18 +320,19 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   todos: {
-    color: '#000000',
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 18,
+    fontWeight: '700',
   },
   editTodoModal: {
     backgroundColor: '#ffffff',
-    margin: 50,
-    marginBottom: 200,
-    padding: 40,
+    justifyContent: 'center',
+    padding: 50,
     borderRadius: 10,
-    flex: 1,
+    shadowRadius: 10,
     flexDirection: 'column',
+    width: windowWidth - 50,
+    height: 200,
+    marginLeft: 25,
   },
   inputEdit: {
     fontSize: 18,
@@ -288,4 +342,21 @@ const styles = StyleSheet.create({
     marginRight: 8,
     paddingHorizontal: 8,
   },
+  editModalButton: { 
+    borderRadius: 4,
+    padding: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#1a8dff',
+    height: windowHeight / 15,
+    width: windowWidth / 3.5,
+    marginTop: 10,
+  },
+  buttonText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#ffffff',
+    fontFamily: 'Montserrat',
+
+},
 });
