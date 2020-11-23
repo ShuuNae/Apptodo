@@ -111,6 +111,7 @@ export default class ToDoModal extends Component {
           </TouchableOpacity>
 
           <Text
+          numberOfLines={3}
             style={[
               styles.todos,
               {
@@ -254,6 +255,7 @@ export default class ToDoModal extends Component {
               style={[styles.input, {borderColor: list.color}]}
               onChangeText={(text) => this.setState({newToDo: text})}
               value={this.state.newToDo}
+              maxLength={20}
             />
             <TouchableOpacity
               style={[styles.addToDo, {backgroundColor: list.color}]}
@@ -319,7 +321,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   todos: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '700',
   },
   editTodoModal: {
