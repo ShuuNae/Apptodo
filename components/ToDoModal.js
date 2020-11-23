@@ -14,7 +14,6 @@ import {
 } from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import FormButton from '../components/FormButtons';
 import Dimensions, {windowWidth, windowHeight} from '../utils/Dimensions';
 
 export default class ToDoModal extends Component {
@@ -173,7 +172,8 @@ export default class ToDoModal extends Component {
               justifyContent: 'center',
             }}>
             <KeyboardAvoidingView style={styles.editTodoModal}>
-              <Text style={{fontSize: 25, alignSelf: 'center', marginBottom: 5}}>
+              <Text
+                style={{fontSize: 25, alignSelf: 'center', marginBottom: 5}}>
                 Edit your todo
               </Text>
               <View>
@@ -197,11 +197,10 @@ export default class ToDoModal extends Component {
                   <Text style={styles.buttonText}>Save</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                style={styles.editModalButton}
-                  onPress={() => this.toggleTodoEditable()}
-                  >
+                  style={styles.editModalButton}
+                  onPress={() => this.toggleTodoEditable()}>
                   <Text style={styles.buttonText}>Cancel</Text>
-                  </TouchableOpacity>
+                </TouchableOpacity>
               </View>
             </KeyboardAvoidingView>
           </View>
@@ -342,7 +341,7 @@ const styles = StyleSheet.create({
     marginRight: 8,
     paddingHorizontal: 8,
   },
-  editModalButton: { 
+  editModalButton: {
     borderRadius: 4,
     padding: 10,
     alignItems: 'center',
@@ -357,6 +356,5 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#ffffff',
     fontFamily: 'Montserrat',
-
-},
+  },
 });

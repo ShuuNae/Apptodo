@@ -29,11 +29,14 @@ export default class AddListModal extends Component {
     const {name, color} = this.state;
 
     const list = {name, color};
-
-    this.props.addList(list);
-
+    if (!list.name.trim()) {
+      alert('Please enter something!');
+    } else {
+      this.props.addList(list);
+      this.props.closeModal();
+    }
     this.setState({name: ''});
-    this.props.closeModal();
+
   };
 
   renderColors() {
