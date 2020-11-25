@@ -15,6 +15,7 @@ import {
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Dimensions, {windowWidth, windowHeight} from '../utils/Dimensions';
+import EditListModal from './EditListModal';
 
 export default class ToDoModal extends Component {
   state = {
@@ -22,6 +23,7 @@ export default class ToDoModal extends Component {
     todoEditable: false,
     ToDoEdit: '',
     modalIndex: '',
+    ListEditVisible: false,
   };
 
   toggleToDoCompleted = (index) => {
@@ -33,6 +35,9 @@ export default class ToDoModal extends Component {
 
   toggleTodoEditable() {
     this.setState({todoEditable: !this.state.todoEditable});
+  }
+  toggleListEditVisible() {
+    this.setState({ListEditVisible: !this.state.ListEditVisible});
   }
 
   addToDo = () => {
@@ -65,28 +70,40 @@ export default class ToDoModal extends Component {
   editTodo = (index, text) => {
     let list = this.props.list;
     if (!list.todos.some((todo) => todo.title === text)) {
-      list.todos[index].title = text;
-
-      this.props.updateList(list);
+      if (!text.trim()) {
+        alert('Please enter something!');
+      } else {
+        list.todos[index].title = text;
+        this.props.updateList(list);
+        this.toggleTodoEditable();
+      }
     } else {
       alert(text + ' is already exists!');
     }
-    this.setState({ToDoEdit: ''});
+    // this.setState({ToDoEdit: ''});
     this.setState({modalIndex: ''});
     Keyboard.dismiss();
-    this.toggleTodoEditable();
   };
   deleteList = () => {
     let list = this.props.list;
     this.props.deleteList(list);
   };
 
-  alertDelete = () => {
+  alertDelete = (type, index) => {
     Alert.alert(
       'Delete',
-      'Do you want to delete this list?',
+      'Do you want to delete this ' + type + ' ?',
       [
-        {text: 'Yes', onPress: () => this.deleteList()},
+        {
+          text: 'Yes',
+          onPress: () => {
+            if (type == 'todo') {
+              this.deleteTodo(index);
+            } else if (type == 'list') {
+              this.deleteList();
+            }
+          },
+        },
         {
           text: 'No',
           style: 'cancel',
@@ -111,7 +128,7 @@ export default class ToDoModal extends Component {
           </TouchableOpacity>
 
           <Text
-          numberOfLines={3}
+            numberOfLines={3}
             style={[
               styles.todos,
               {
@@ -141,7 +158,7 @@ export default class ToDoModal extends Component {
 
           <TouchableOpacity
             style={{marginLeft: 10}}
-            onPress={() => this.deleteTodo(index)}>
+            onPress={() => this.alertDelete('todo', index)}>
             <FontAwesome
               name={'trash'}
               size={24}
@@ -182,6 +199,7 @@ export default class ToDoModal extends Component {
                   style={styles.inputEdit}
                   onChangeText={(text) => this.setState({ToDoEdit: text})}
                   value={this.state.ToDoEdit}
+                  maxLength={20}
                 />
               </View>
 
@@ -206,6 +224,18 @@ export default class ToDoModal extends Component {
             </KeyboardAvoidingView>
           </View>
         </Modal>
+
+        <Modal
+          visible={this.state.ListEditVisible}
+          transparent={true}
+          position="center">
+          <EditListModal
+            list={list}
+            closeListModal={() => this.toggleListEditVisible()}
+            updateList={this.props.updateList}
+          />
+        </Modal>
+
         <SafeAreaView style={styles.container}>
           <TouchableOpacity
             style={{position: 'absolute', top: 32, right: 32, zIndex: 10}}
@@ -214,9 +244,19 @@ export default class ToDoModal extends Component {
           </TouchableOpacity>
           <TouchableOpacity
             style={{position: 'absolute', top: 32, right: 52, zIndex: 10}}
-            onPress={() => this.alertDelete()}>
+            onPress={() => this.alertDelete('list')}>
             <FontAwesome
               name={'trash'}
+              size={24}
+              style={{width: 32}}
+              color={'#000000'}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{position: 'absolute', top: 32, right: 82, zIndex: 10}}
+            onPress={() => this.toggleListEditVisible()}>
+            <FontAwesome
+              name={'pencil'}
               size={24}
               style={{width: 32}}
               color={'#000000'}
@@ -243,7 +283,7 @@ export default class ToDoModal extends Component {
               renderItem={({item, index}) => this.renderToDo(item, index)}
               keyExtractor={(item) => item.title}
               contentContainerStyle={{
-                paddingHorizontal: 32,
+                paddingHorizontal: 24,
                 paddingVertical: 64,
               }}
               showsVerticalScrollIndicator={false}

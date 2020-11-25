@@ -13,16 +13,30 @@ export const AuthProvider = ({children}) => {
                 setUser,
                 login: async(email,password) => {
                     try{
-                        await auth().signInWithEmailAndPassword(email,password)
+                        if(email != null && password != null){
+                            await auth().signInWithEmailAndPassword(email,password)
+                        }else{
+                            alert('Please enter something!');
+                        }
+                        
                     }catch(e){
                         console.log(e);
+                        alert(e.message);
+                        
                     }
                 },
                 register: async(email,password) => {
                     try{
-                        await auth().createUserWithEmailAndPassword(email,password);
+                        if(email != null && password != null){
+                            await auth().createUserWithEmailAndPassword(email,password);
+                        }
+                        else{
+                            alert('Please enter something!');
+                        }
+                        
                     }catch(e){
                         console.log(e);
+                        alert(e.message);
                     }
                 },
                 logout: async () => {
@@ -30,6 +44,7 @@ export const AuthProvider = ({children}) => {
                         await auth().signOut();
                     }catch(e){
                         console.log(e);
+                        alert(e.message);
                     }
                 }
             }}
